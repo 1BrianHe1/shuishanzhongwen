@@ -1,0 +1,11 @@
+:80 {
+    handle_path /media/* {
+        root * /data/media
+        file_server
+        header Cache-Control "public, max-age=31536000, immutable"
+    }
+
+    handle {
+        reverse_proxy app:8000
+    }
+}
