@@ -12,19 +12,19 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 # 登录接口
 @router.post("/login", response_model=schemas.ResponseModel)
 def login(request: schemas.LoginRequest, db: Session = Depends(get_db)):
-    user = crud.get_user_by_userid(db, request.userid)
+    user = crud.get_user_by_username(db, request.user_name)
     if not user:
         return {"code": 0, "message": "用户不存在", "data": None}
     if not security.verify_password(request.password, user.password_hash):
         return {"code": 0, "message": "用户名或密码错误", "data": None}
 
-    token = security.create_access_token({"user_id": str(user.user_id), "userid": user.user_name})
+    token = security.create_access_token({"user_id": str(user.user_id), "username": user.user_name})
     crud.create_user_session(db, str(user.user_id), token)
 
     return {
         "code": 1,
         "message": "success",
-        "data": {"access_token": token, "token_type": "bearer", "user_info": {"user_name": user.user_name,"points":user.points}},
+        "data": {"access_token": token, "token_type": "bearer", "user_info": {"user_id":user.user_id,"user_name": user.user_name,"points":user.points}},
     }
 
 # 登出接口
