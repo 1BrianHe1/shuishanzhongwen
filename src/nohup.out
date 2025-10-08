@@ -1,0 +1,46 @@
+INFO:     Will watch for changes in these directories: ['/mnt/data/chinese_platform_backend/src']
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [140621] using WatchFiles
+INFO:     Started server process [140624]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [140624]
+INFO:     Stopping reloader process [140621]
+INFO:     Started server process [140875]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     Started server process [140937]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [140993]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     172.20.155.187:58871 - "GET /docs HTTP/1.1" 200 OK
+INFO:     172.20.155.187:58871 - "GET /openapi.json HTTP/1.1" 200 OK
+INFO:     172.20.155.187:58871 - "GET /docs HTTP/1.1" 200 OK
+INFO:     172.20.155.187:58871 - "GET /openapi.json HTTP/1.1" 200 OK
+INFO:     172.20.155.187:57181 - "GET /docs HTTP/1.1" 200 OK
+INFO:     172.20.155.187:57181 - "GET /openapi.json HTTP/1.1" 200 OK
+INFO:     172.20.155.187:59560 - "GET /docs HTTP/1.1" 200 OK
+INFO:     172.20.155.187:59560 - "GET /openapi.json HTTP/1.1" 200 OK
+INFO:     172.20.155.187:58576 - "GET /docs HTTP/1.1" 200 OK
+INFO:     172.20.155.187:58576 - "GET /openapi.json HTTP/1.1" 200 OK
+INFO:     172.30.173.135:49784 - "GET /docs HTTP/1.1" 200 OK
+INFO:     172.30.173.135:52106 - "GET /docs HTTP/1.1" 200 OK
+INFO:     172.30.173.135:52106 - "GET /openapi.json HTTP/1.1" 200 OK
+INFO:     172.30.173.135:52237 - "GET /docs HTTP/1.1" 200 OK
+INFO:     172.30.173.135:52237 - "GET /openapi.json HTTP/1.1" 200 OK
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [140875]

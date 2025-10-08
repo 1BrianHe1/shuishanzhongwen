@@ -1,6 +1,7 @@
 # app/schemas.py
-from typing import Optional, Literal
+from typing import Optional, Literal, List, Dict, Any
 from pydantic import BaseModel, EmailStr
+import uuid
 
 # 请求体
 class LoginRequest(BaseModel):
@@ -56,3 +57,36 @@ class LoginByCodeRequest(BaseModel):
     channel: Literal["email", "phone"]
     recipient: str  # email 或 phone
     code: str
+
+# 题目集合相关数据模型
+class QuestionRequest(BaseModel):
+    phaseId: int
+    topicId: int
+    duration: int  # 持续时间，单位秒
+    questionTypes: List[str]  # 题目类型列表，如 ["listening_comprehension", "reading_comprehension"]
+    userId: Optional[str] = None  # 用户ID
+    token: Optional[str] = None  # 用户token
+    count: Optional[int] = 10  # 题目数量，默认10题
+
+class QuestionContent(BaseModel):
+    question: str  # 问题文本
+    audioUrl: Optional[str] = None  # 音频URL（听力题目需要）
+    imageUrl: Optional[str] = None  # 图片URL（看图题目需要）
+    options: Optional[List[str]] = None  # 选择题选项
+    correctAnswer: Optional[int] = None  # 正确答案索引（选择题）
+    correctAnswers: Optional[List[int]] = None  # 多选题正确答案索引
+    correctText: Optional[str] = None  # 填空题或问答题正确答案
+
+class Question(BaseModel):
+    questionId: str  # 题目ID
+    questionType: str  # 题目类型
+    content: QuestionContent  # 题目内容
+
+class QuestionResponse(BaseModel):
+    phase: int
+    topic: int
+    count: int  # 实际题目数量
+    sessionId: str  # 会话标识
+    duration: int  # 持续时间
+    token: Optional[str] = None  # 用户token
+    questions: List[Question]  # 题目列表
