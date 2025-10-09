@@ -10,8 +10,12 @@
 from fastapi import FastAPI
 from .database import engine, Base
 from .routers import all_routers
+import os
+from fastapi.staticfiles import StaticFiles
 
 app = FastAPI(title="My App")
+MEDIA_ROOT=os.getenv("MEDIA_ROOT")
+app.mount("/media",StaticFiles(directory=MEDIA_ROOT),name="media")
 
 # 在启动时自动建表（开发/测试环境可用；生产建议用 Alembic）
 @app.on_event("startup")
