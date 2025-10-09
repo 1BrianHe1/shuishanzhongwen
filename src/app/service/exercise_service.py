@@ -794,7 +794,7 @@ class ListenSentenceQAReq(BaseModel):
     textType: str = "一句话"              # 复用 TEXT_TYPE_INSTRUCTIONS
     lang: str = "zh-CN"
     difficulty: int = Field(2, ge=1, le=5)
-    optionCount: int = Field(4, ge=3, le=6)   # 选项数量，默认4
+    optionCount: int = Field(3, ge=3, le=6)   # 选项数量，默认4
     seed: Optional[int] = None                # 可选：控制选项打乱的随机种子
 
 
@@ -1501,8 +1501,8 @@ async def create_reading_dialog_matching(cur, req: ReadingDialogMatchReq):
             }
             cur.execute("""
                 INSERT INTO content_new.exercises
-                    (id, parent_exercise_id, exercise_type_id, prompt, metadata, difficulty_level, display_order)
-                VALUES (%s, %s, %s, %s, %s, %s, %s);
+                    (id, parent_exercise_id, word_id, exercise_type_id, prompt, metadata, difficulty_level, display_order)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s);
             """, (
                 sub_id,
                 exercise_id,
@@ -1532,7 +1532,7 @@ class ReadingGapFillReq(BaseModel):
     keyword: str                         # 主题词/限定词
     hskLevel: int = Field(..., ge=1, le=6)
     difficulty: int = Field(2, ge=1, le=5)
-    optionCount: int = 4  
+    optionCount: int = 3  
     lang: str = "zh-CN"
     seed: Optional[int] = None
 
@@ -1806,7 +1806,7 @@ async def create_read_sentence_comprehension_choice_exercise(cur, req: ReadSente
       - 输入 keyword、HSK 等级与难度
       - LLM 依据提供的 prompt 生成：短文 + 题干 + 3 选项(A/B/C) + 正确答案
       - 题型：READ_SENTENCE_COMPREHENSION（需在 content_new.exercise_types 预置）
-      - 返回：passage / question / options(按标签) / correct_answer
+      - 返回：passage / question(含拼音) / options(含拼音) / correct_answer
     """
     kw = (req.keyword or "").strip()
     if not kw:
@@ -1839,10 +1839,16 @@ async def create_read_sentence_comprehension_choice_exercise(cur, req: ReadSente
         if not passage or not question or len(options_list) != 3 or answer_label not in {"A","B","C"}:
             raise ValueError("字段缺失或不符合规范")
         if not (20 <= len(passage) <= 50):
-            # 放宽：只校验非空，长度偏差不致命，可视需要改为强制
             pass
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"LLM 返回解析失败或格式错误: {e}")
+
+    # [新增] 为题干和所有选项文本生成拼音
+    question_pinyin = to_pinyin_sentence(question)
+    options_pinyins = [to_pinyin_sentence(opt) for opt in options_list]
+    # 创建一个从文本到拼音的映射，方便后续查找
+    text_to_pinyin_map = dict(zip(options_list, options_pinyins))
+
 
     # 2) 选项打乱（保持可复现）
     orig_labels = ["A","B","C"]
@@ -1856,7 +1862,11 @@ async def create_read_sentence_comprehension_choice_exercise(cur, req: ReadSente
     for pos, j in enumerate(idxs):
         lab = labels[pos]
         opt_text = options_list[j]
-        options[lab] = {"text": opt_text}
+        # [修改] 在构建选项字典时，同时加入 text 和 pinyin
+        options[lab] = {
+            "text": opt_text,
+            "pinyin": text_to_pinyin_map.get(opt_text, "")
+        }
         if opt_text == correct_text:
             correct_label = lab
     if not correct_label:
@@ -1871,15 +1881,23 @@ async def create_read_sentence_comprehension_choice_exercise(cur, req: ReadSente
 
     cur.execute("SELECT id FROM content_new.words WHERE characters=%s;", (kw,))
     word_row = cur.fetchone()
-    word_id = word_row[0] if word_row else None  # 强制关联则改为：if not word_row: raise HTTPException(400, ...)
+    word_id = word_row[0] if word_row else None
 
     # 4) 落库（单题，无子题/无媒体）
     exercise_id = str(uuid.uuid4())
+    # [修改] 更新 metadata，为其增加 question_pinyin 和 options 里的 pinyin 字段
     metadata = {
         "keyword": kw,
         "passage": passage,
         "question": question,
-        "options": [{"label": lab, "text": options[lab]["text"]} for lab in labels],
+        "question_pinyin": question_pinyin, # [新增]
+        "options": [
+            {
+                "label": lab,
+                "text": options[lab]["text"],
+                "pinyin": options[lab]["pinyin"] # [新增]
+            } for lab in labels
+        ],
         "correct_label": correct_label,
         "seed": req.seed
     }
@@ -1897,6 +1915,7 @@ async def create_read_sentence_comprehension_choice_exercise(cur, req: ReadSente
     ))
 
     # 5) 返回（可直接作为 response_model=ReadSentenceComprResp）
+    # [修改] 在返回的字典中也加入 question_pinyin
     return {
         "exercise_id": exercise_id,
         "question_type": "阅读·句子理解",
@@ -1904,11 +1923,10 @@ async def create_read_sentence_comprehension_choice_exercise(cur, req: ReadSente
         "difficulty": req.difficulty,
         "passage": passage,
         "question": question,
-        "options": options,
+        "question_pinyin": question_pinyin, # [新增]
+        "options": options,                 # 'options' 字典现在已经包含了拼音
         "correct_answer": correct_label
     }
-
-
 class ReadSentenceTfReq(BaseModel):
     keyword: str
     hskLevel: int = Field(..., ge=1, le=6)
