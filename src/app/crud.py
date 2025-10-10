@@ -146,3 +146,21 @@ def verify_and_consume_code(db: Session, channel: str, recipient: str, action: s
             db.commit()
             return True
     return False
+
+def get_user_by_session_id(db: Session, session_id: str):
+    """通过session_id查询用户"""
+    session = db.query(models.UserSession).filter(
+        models.UserSession.session_id == session_id,
+        models.UserSession.logout_time.is_(None)
+    ).first()
+    if session:
+        return db.query(models.User).filter(models.User.user_id == session.user_id).first()
+    return None
+
+def create_attempt(db: Session, attempt_data: dict):
+    """创建attempt记录"""
+    attempt = models.Attempt(**attempt_data)
+    db.add(attempt)
+    db.commit()
+    db.refresh(attempt)
+    return attempt

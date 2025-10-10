@@ -90,3 +90,19 @@ class QuestionResponse(BaseModel):
     duration: int  # 持续时间
     token: Optional[str] = None  # 用户token
     questions: List[Question]  # 题目列表
+
+# 提交答案相关模型
+class SubmissionItem(BaseModel):
+    exerciseId: str  # 题目ID
+    userAnswer: Any  # 用户答案，可以是bool、int、str等
+    points: int  # 获得的分数
+
+class SubmitAnswersRequest(BaseModel):
+    sessionId: str  # 会话ID
+    token: str  # 用户token
+    submissionList: List[SubmissionItem]  # 提交的答案列表
+
+class SubmitAnswersResponse(BaseModel):
+    code: int
+    message: str
+    data: Optional[Dict[str, Any]] = None

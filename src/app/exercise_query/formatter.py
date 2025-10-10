@@ -297,7 +297,7 @@ def format_exercises_for_api(
                     items.append(
                         schemas.WordOrderItem(
                             label=str(i),
-                            **{"word/sentence": txt}
+                            **{"word": txt}
                         )
                     )
                 if answer_ids:
@@ -316,7 +316,7 @@ def format_exercises_for_api(
                     items.append(
                         schemas.WordOrderItem(
                             label=str(i),
-                            **{"word/sentence": txt}
+                            **{"word": txt}
                         )
                     )
                 if answer_ids:
@@ -336,7 +336,7 @@ def format_exercises_for_api(
 
             content = schemas.ReadWordOrderContent(
                 prompt=prompt_text,
-                **{"words/sentences": items}
+                **{"words": items}
             )
             formatted_list.append(
                 schemas.ReadWordOrderExercise(
@@ -346,9 +346,5 @@ def format_exercises_for_api(
                     correctAnswer=correct_answer_numeric,
                 )
             )
-
-        # 其他/未知类型可以在此扩展
-        # else:
-        #     pass
 
     return formatted_list

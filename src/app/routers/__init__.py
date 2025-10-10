@@ -1,21 +1,21 @@
 # app/routers/__init__.py
-from .fetch import router as fetch_router
-from .generator import router as generator_router_old
-from .health import router as health_router
-from .user import router as user_router  # 新增
-from .auth import router as auth_router  # 新增
-from .generator_router import router as new_generator_router
-from .questions import router as questions_router  # 旧的题目路由
-from ..question import question_router  # 新的重构后的question模块路由
-from app.exercise_query.router import router as question_query_router
+"""
+路由模块
 
+此模块已废弃，新的路由定义在 app.features 中
+保留此文件仅为向后兼容
+"""
+
+from app.features import auth_router, user_router
+from .generator_router import router as generator_router
+from app.exercise_query.router import router as exercise_query_router
+
+# 所有启用的路由
 all_routers = [
-    #fetch_router,
-    #generator_router_old,
-    #health_router,
-    user_router,
-    auth_router,
-    new_generator_router,
-    # questions_router  # 注释掉旧的题目路由
-    question_query_router
+    auth_router,         # 认证相关接口
+    user_router,         # 用户相关接口
+    generator_router,    # 题目生成器
+    exercise_query_router  # 题目查询
 ]
+
+__all__ = ["all_routers"]
