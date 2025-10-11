@@ -2243,8 +2243,6 @@ async def create_read_paragraph_comprehension_exercise(cur, req: ReadParagraphCo
     ).dict()
 
 
-
-
 class WordOrderReq(BaseModel):
     keyword: str
     hskLevel: int = Field(..., ge=1, le=6)
